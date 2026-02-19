@@ -4,15 +4,15 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import React from 'react'
 import config from '@/payload.config'
-import './styles.css'
+import '../styles.css'
 
-export default async function HomePage() {
+export default async function PostsPage() {
   const headers = await getHeaders()
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
   const { user } = await payload.auth({ headers })
 
-  // 公開済みのブログ投稿を取得
+  // 公開済みのブログ投稿をすべて取得
   const { docs: posts } = await payload.find({
     collection: 'posts',
     where: {
@@ -21,14 +21,15 @@ export default async function HomePage() {
       },
     },
     sort: '-publishedDate',
-    limit: 6,
   })
 
   return (
     <div className="home">
       <header className="header">
         <div className="header-content">
-          <h1>Payload CMS Blog</h1>
+          <h1>
+            <Link href="/">Payload CMS Blog</Link>
+          </h1>
           <nav className="nav">
             <Link href="/">Home</Link>
             <Link href="/posts">All Posts</Link>
@@ -42,13 +43,8 @@ export default async function HomePage() {
       </header>
 
       <main className="main-content">
-        <section className="hero">
-          <h2>Welcome to Payload CMS</h2>
-          <p>A powerful, flexible headless CMS built with TypeScript</p>
-        </section>
-
         <section className="posts-section">
-          <h2>Latest Posts</h2>
+          <h2>All Posts</h2>
           {posts.length === 0 ? (
             <div className="empty-state">
               <p>No posts yet. Create your first post in the admin panel!</p>

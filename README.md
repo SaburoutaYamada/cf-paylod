@@ -80,6 +80,22 @@ This will spin up Wrangler in `production` mode, run any created migrations, bui
 
 That's it! You can if you wish move these steps into your CI pipeline as well.
 
+### Deploy on push (GitHub Actions)
+
+このリポジトリには **main ブランチへ push すると自動で Cloudflare にデプロイする** GitHub Actions ワークフロー (`.github/workflows/deploy.yml`) が含まれています。
+
+**初回だけ設定が必要です:**
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **My Profile** → **API Tokens** で、**Edit Cloudflare Workers** 権限を持つ API トークンを作成する。
+2. GitHub リポジトリ → **Settings** → **Secrets and variables** → **Actions** を開く。
+3. **New repository secret** で次のシークレットを追加する:
+   - 名前: `CLOUDFLARE_API_TOKEN`  
+   - 値: 上記で作成した API トークン
+
+設定後は **main に push するだけで**、マイグレーション実行 → ビルド → デプロイが行われ、サイトに反映されます。
+
+（本番の `PAYLOAD_SECRET` は Cloudflare の Worker 設定でバインドしている想定です。CI のマイグレーション用に別途 `PAYLOAD_SECRET` を GitHub Secrets に置く場合は、ワークフロー内で参照できます。）
+
 ## Enabling logs
 
 By default logs are not enabled for your API, we've made this decision because it does run against your quota so we've left it opt-in. But you can easily enable logs in one click in the Cloudflare panel, [see docs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs).

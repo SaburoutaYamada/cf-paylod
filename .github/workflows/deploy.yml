@@ -1,0 +1,37 @@
+# main への push で Cloudflare Workers にデプロイします。
+# リポジトリの Settings → Secrets and variables → Actions で以下を設定してください:
+#   CLOUDFLARE_API_TOKEN - Cloudflare API トークン (Workers 編集権限)
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET || 'ignore' }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN が未設定です。リポジトリの Settings → Secrets で設定すると push 時にデプロイされます。"
+            exit 0
+          fi
+          pnpm run deploy
