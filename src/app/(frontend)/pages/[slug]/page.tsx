@@ -7,7 +7,12 @@ import React from 'react'
 import config from '@/payload.config'
 import '../../styles.css'
 
-export default async function PageDetail({ params }: { params: { slug: string } }) {
+export default async function PageDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
   const headers = await getHeaders()
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -17,7 +22,7 @@ export default async function PageDetail({ params }: { params: { slug: string } 
     collection: 'pages',
     where: {
       slug: {
-        equals: params.slug,
+        equals: slug,
       },
       status: {
         equals: 'published',
