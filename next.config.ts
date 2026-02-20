@@ -6,6 +6,9 @@ const nextConfig = {
   // Read more: https://opennext.js.org/cloudflare/howtos/workerd
   serverExternalPackages: ['jose', 'pg-cloudflare'],
 
+  // Cloudflare ビルド環境で eslint-config-next のパッチエラーが発生するため、ビルド時は ESLint をスキップ（ローカルでは pnpm lint で実行可能）
+  eslint: { ignoreDuringBuilds: true },
+
   // Your Next.js config here
   webpack: (webpackConfig: any) => {
     webpackConfig.resolve.extensionAlias = {
