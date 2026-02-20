@@ -1,4 +1,3 @@
-import fs from 'fs'
 import path from 'path'
 import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -16,11 +15,28 @@ import { Categories } from './collections/Categories'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const realpath = (value: string) => (fs.existsSync(value) ? fs.realpathSync(value) : undefined)
-
-const isCLI = process.argv.some((value) => realpath(value).endsWith(path.join('payload', 'bin.js')))
 const isProduction = process.env.NODE_ENV === 'production'
 
+// Cloudflare Workers / サーバーレス環境では fs が使えないか読み取り専用のため、
+// fs を使わずに CLI 判定。本番では常に getCloudflareContext を使用する。
+function getIsCLI(): boolean {
+  // payload migrate などのCLIコマンドを実行している場合を検出
+  const isMigrateCommand = process.argv.some((arg) => arg.includes('migrate'))
+  if (isMigrateCommand) return true
+  
+  if (isProduction) return false
+  try {
+    const fs = require('fs') as typeof import('fs')
+    const realpath = (value: string) => (fs.existsSync(value) ? fs.realpathSync(value) : undefined)
+    return process.argv.some((value) => realpath(value)?.endsWith(path.join('payload', 'bin.js')) ?? false)
+  } catch {
+    return false
+  }
+}
+const isCLI = getIsCLI()
+
+// ビルド時（migrate実行時）は wrangler を使用してリモートD1に接続
+// ランタイム（Workers実行時）は getCloudflareContext を使用
 const cloudflare =
   isCLI || !isProduction
     ? await getCloudflareContextFromWrangler()
@@ -31,14 +47,19 @@ export default buildConfig({
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
+      // 本番環境では既存のimportMap.jsを使用し、自動生成を防ぐ
+      importMapFile: isProduction
+        ? path.resolve(dirname, 'app', '(payload)', 'admin', 'importMap.js')
+        : undefined,
     },
   },
   collections: [Users, Media, Posts, Pages, Categories],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
+  // 本番（Cloudflare Workers）ではファイルシステムに書き込めないため outputFile を渡さない
+  typescript: isProduction
+    ? {}
+    : { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: sqliteD1Adapter({ binding: cloudflare.env.D1 }),
   plugins: [
     r2Storage({
