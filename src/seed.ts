@@ -86,7 +86,7 @@ export async function seed() {
         },
         author: author.id,
         category: createdCategories[0]?.id,
-        status: 'published',
+        status: 'published' as const,
         publishedDate: new Date().toISOString(),
       },
       {
@@ -124,7 +124,7 @@ export async function seed() {
         },
         author: author.id,
         category: createdCategories[2]?.id,
-        status: 'published',
+        status: 'published' as const,
         publishedDate: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
       },
       {
@@ -162,7 +162,7 @@ export async function seed() {
         },
         author: author.id,
         category: createdCategories[0]?.id,
-        status: 'published',
+        status: 'published' as const,
         publishedDate: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
       },
     ]
@@ -219,7 +219,7 @@ export async function seed() {
             version: 1,
           },
         },
-        status: 'published',
+        status: 'published' as const,
       },
     ]
 
