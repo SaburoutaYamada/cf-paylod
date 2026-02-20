@@ -80,6 +80,18 @@ This will spin up Wrangler in `production` mode, run any created migrations, bui
 
 That's it! You can if you wish move these steps into your CI pipeline as well.
 
+### Cloudflare Workers & Pages の Git 連携で自動ビルドする場合
+
+**ビルドコマンド**には、`opennextjs-cloudflare` を直接書かず、必ず **`pnpm run build:opennext`** を使ってください（そうしないと `opennextjs-cloudflare: not found` になります）。
+
+例:
+
+```
+pnpm install && pnpm run deploy:database && pnpm run build && pnpm run build:opennext
+```
+
+**デプロイコマンド**: `opennextjs-cloudflare deploy` を実行する必要がある場合は、同様に `pnpm run deploy:app` を使うか、デプロイ用スクリプトを用意してください。
+
 ### Deploy on push (GitHub Actions)
 
 このリポジトリには **main ブランチへ push すると自動で Cloudflare にデプロイする** GitHub Actions ワークフロー (`.github/workflows/deploy.yml`) が含まれています。
