@@ -90,7 +90,11 @@ That's it! You can if you wish move these steps into your CI pipeline as well.
 pnpm install && pnpm run deploy:database && pnpm run build && pnpm run build:opennext
 ```
 
-**デプロイコマンド**: `opennextjs-cloudflare deploy` を実行する必要がある場合は、同様に `pnpm run deploy:app` を使うか、デプロイ用スクリプトを用意してください。
+**デプロイコマンド**（必須）には次を設定してください（直接 `opennextjs-cloudflare` を書くと `not found` になります）:
+
+```
+pnpm run deploy:opennext
+```
 
 ### Deploy on push (GitHub Actions)
 

@@ -7,6 +7,7 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "build:opennext": "opennextjs-cloudflare build --env=$CLOUDFLARE_ENV",
+    "deploy:opennext": "opennextjs-cloudflare deploy --env=$CLOUDFLARE_ENV",
     "deploy": "pnpm run deploy:database && pnpm run deploy:app",
     "deploy:app": "opennextjs-cloudflare build --env=$CLOUDFLARE_ENV && opennextjs-cloudflare deploy --env=$CLOUDFLARE_ENV",
     "deploy:full": "pnpm run deploy:database && pnpm run build && pnpm run build:opennext",
